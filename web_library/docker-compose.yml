@@ -1,0 +1,32 @@
+version: '4.19'
+
+
+services:
+  web_library:
+      build: .
+      container_name: web_library
+      volumes:
+        - .:/web_library
+      command: sh -c "python3 manage.py collectstatic --no-input &&
+                      python3 manage.py makemigrations &&
+                      python3 manage.py migrate &&
+                      pytest &&
+                      python3 manage.py runserver 0.0.0.0:8000"
+#                      gunicorn bur_form.wsgi -b 0.0.0.0:8000 --timeout 60"
+      ports:
+        - 8000:8000
+      depends_on:
+        - postgres
+
+  postgres:
+      container_name: postgres
+      image: postgres
+      environment:
+        - POSTGRES_DB=postgres
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+      volumes:
+        - postgres_data:/var/lib/postgresql/data/
+
+volumes:
+  postgres_data: null
